@@ -2,15 +2,15 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, password=None, **extra_fields):
-        if not username:
+    def create_user(self, studentNumber, password=None, **extra_fields):
+        if not studentNumber:
             raise ValueError('The Email field must be set')
-        user = self.model(username=username, **extra_fields)
+        user = self.model(studentNumber=studentNumber, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password=None, **extra_fields):
+    def create_superuser(self, studentNumber, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -19,10 +19,10 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(username, password, **extra_fields)
+        return self.create_user(studentNumber, password, **extra_fields)
 
 class Users(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=150, unique=True)
+    studentNumber = models.CharField(max_length=150, unique=True)
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -33,7 +33,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'studentNumber'
     REQUIRED_FIELDS = ['name', 'phone']
 
 # Create your models here.

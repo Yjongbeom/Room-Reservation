@@ -16,22 +16,22 @@ class UsersSerializer(serializers.ModelSerializer):
         return user
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    studentNumber = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username = data.get('studentNumber')
+        studentNumber = data.get('studentNumber')
         password = data.get('password')
 
-        if username and password:
-            user = authenticate(username=username, password=password)
+        if studentNumber and password:
+            user = authenticate(username=studentNumber, password=password)
             if user is None:
                 raise serializers.ValidationError("Invalid login credentials")
 
             refresh = RefreshToken.for_user(user)
             return {
                 'access': str(refresh.access_token),
-                'studentNumber': user.username
+                'studentNumber': user.studentNumber
             }
         else:
             raise serializers.ValidationError("Both username and password are required")

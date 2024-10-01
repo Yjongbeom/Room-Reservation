@@ -61,13 +61,13 @@ class LoginViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        username = request.data.get('studentNumber')
+        studentNumber = request.data.get('studentNumber')
         password = request.data.get('password')
 
-        if username is None or password is None:
+        if studentNumber is None or password is None:
             return Response(status=400)
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(username=studentNumber, password=password)
 
         if user is not None:
             refresh = RefreshToken.for_user(user)
@@ -77,7 +77,7 @@ class LoginViewSet(viewsets.ModelViewSet):
 
             return Response({
                 'access': str(refresh.access_token),
-                'studentId': user.username,
+                'studentId': user.studentNumber,
                 'name': user.name,
                 'phone': user.phone,
             }, status=status.HTTP_200_OK)
@@ -97,7 +97,7 @@ class LoginViewSet(viewsets.ModelViewSet):
             user = Users.objects.get(pk=user_id)
 
             return Response({
-                'studentId': user.username,
+                'studentId': user.studentNumber,
                 'name': user.name,
                 'phone': user.phone,
             }, status=status.HTTP_200_OK)
@@ -120,7 +120,7 @@ class RegisterViewSet(viewsets.ModelViewSet):
         user = serializer.save()
 
         return Response({
-            'studentId': user.username,
+            'studentId': user.studentNumber,
             'name': user.name,
             'phone': user.phone,
         }, status=status.HTTP_201_CREATED)
