@@ -61,7 +61,7 @@ class LoginViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        username = request.data.get('username')
+        username = request.data.get('studentNumber')
         password = request.data.get('password')
 
         if username is None or password is None:
