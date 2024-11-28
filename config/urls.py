@@ -20,7 +20,7 @@ from rest_framework import routers
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from reservation.views import ReservationViewSet, LoginViewSet, RegisterViewSet
+from reservation.views import ReservationViewSet, LoginViewSet, RegisterViewSet, ReservationDetailViewSet
 
 from django.views.static import serve
 from django.urls import re_path
@@ -37,9 +37,10 @@ router.register(r'reservation', ReservationViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('/', include(router.urls)),
-    path('login/', LoginViewSet.as_view({'post': 'create', 'get': 'retrieve'}), name='login'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', RegisterViewSet.as_view({'post': 'create'}), name='signup'),
+    path('login', LoginViewSet.as_view({'post': 'create', 'get': 'retrieve'}), name='login'),
+    path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register', RegisterViewSet.as_view({'post': 'create'}), name='signup'),
+    path('detail-reservation', ReservationDetailViewSet.as_view({'get': 'list'})),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 

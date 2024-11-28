@@ -44,6 +44,21 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     def list(self, request, *args, **kwargs):
+        queryset = Reservation.objects.filter(building=request.query_params.get('building'), floor=request.query_params.get('floor'), day=request.query_params.get('day'), month=request.query_params.get('month'), year=request.query_params.get('year'))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+class ReservationDetailViewSet(viewsets.ModelViewSet):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
+    
+    def list(self, request, *args, **kwargs):
         queryset = Reservation.objects.filter(building=request.query_params.get('building'), floor=request.query_params.get('floor'), day=request.query_params.get('day'), month=request.query_params.get('month'), year=request.query_params.get('year'), room=request.query_params.get('room'))
 
         page = self.paginate_queryset(queryset)
@@ -53,6 +68,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
 
 class LoginViewSet(viewsets.ModelViewSet):
     serializer_class = LoginSerializer
