@@ -141,7 +141,7 @@ class LoginViewSet(viewsets.ModelViewSet):
             user = Users.objects.get(pk=user_id)
 
             return Response({
-                'studentId': user.studentNumber,
+                'studentNumver': user.studentNumber,
                 'name': user.name,
                 'phone': user.phone,
             }, status=status.HTTP_200_OK)
