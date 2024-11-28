@@ -48,11 +48,12 @@ class ReservationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=req_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        
         headers = self.get_success_headers(serializer.data)
+        
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     def list(self, request, *args, **kwargs):
-        # Filter reservations based on the query parameters
         queryset = Reservation.objects.filter(
             building=request.query_params.get('building'),
             floor=request.query_params.get('floor'),
@@ -75,12 +76,27 @@ class ReservationViewSet(viewsets.ModelViewSet):
         )
 
         page = self.paginate_queryset(updated_queryset)
+        
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            data = serializer.data
+
+            for reservation in data:
+                reservation_obj = updated_queryset.get(reservation_id=reservation['reservation_id'])
+                reservation['user_name'] = reservation_obj.user.name if reservation_obj.user else None
+
+            return self.get_paginated_response(data)
 
         serializer = self.get_serializer(updated_queryset, many=True)
-        return Response(serializer.data)
+        
+        data = serializer.data
+        
+        for reservation in data:
+            
+            reservation_obj = updated_queryset.get(reservation_id=reservation['reservation_id'])
+            reservation['user_name'] = reservation_obj.user.name if reservation_obj.user else None
+
+        return Response(data)
     
 class ReservationDetailViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
