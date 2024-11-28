@@ -164,7 +164,7 @@ class RegisterViewSet(viewsets.ModelViewSet):
         user = serializer.save()
 
         return Response({
-            'studentId': user.studentNumber,
+            'studentNumber': user.studentNumber,
             'name': user.name,
             'phone': user.phone,
         }, status=status.HTTP_201_CREATED)
