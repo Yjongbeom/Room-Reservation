@@ -43,13 +43,13 @@ class ReservationViewSet(viewsets.ModelViewSet):
         queryset_starttime = Reservation.objects.filter(building=request.data.get('building'), floor=request.data.get('floor'), day=request.data.get('day'), month=request.data.get('month'), year=request.data.get('year'), room=request.data.get('room'), start_time=request.data.get('start_time'))
 
         if len(queryset_starttime) > 0 or len(queryset_endtime) > 0:
-            serializer = self.get_serializer(data=req_data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        
-        return Response({'message': '이미 존재하는 예약입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': '이미 존재하는 예약입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        serializer = self.get_serializer(data=req_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     def list(self, request, *args, **kwargs):
         # Filter reservations based on the query parameters
