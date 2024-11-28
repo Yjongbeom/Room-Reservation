@@ -7,6 +7,8 @@ from .models import Reservation, Users
 from .serializers import ReservationSerializer, LoginSerializer, UsersSerializer
 
 from datetime import datetime
+import time
+
 
 def copy_request_data(data):
     req_data = {}
@@ -44,14 +46,34 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     def list(self, request, *args, **kwargs):
-        queryset = Reservation.objects.filter(building=request.query_params.get('building'), floor=request.query_params.get('floor'), day=request.query_params.get('day'), month=request.query_params.get('month'), year=request.query_params.get('year'))
+        # Filter reservations based on the query parameters
+        queryset = Reservation.objects.filter(
+            building=request.query_params.get('building'),
+            floor=request.query_params.get('floor'),
+            day=request.query_params.get('day'),
+            month=request.query_params.get('month'),
+            year=request.query_params.get('year')
+        )
 
-        page = self.paginate_queryset(queryset)
+        for query in list(queryset):
+            if query.end_time < datetime.now().time() and datetime.now().date() == datetime(query.year, query.month, query.day).date():
+                print(f"Deleting expired reservation: {query}")
+                query.delete()
+
+        updated_queryset = Reservation.objects.filter(
+            building=request.query_params.get('building'),
+            floor=request.query_params.get('floor'),
+            day=request.query_params.get('day'),
+            month=request.query_params.get('month'),
+            year=request.query_params.get('year')
+        )
+
+        page = self.paginate_queryset(updated_queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(updated_queryset, many=True)
         return Response(serializer.data)
     
 class ReservationDetailViewSet(viewsets.ModelViewSet):
