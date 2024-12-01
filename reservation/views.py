@@ -92,7 +92,6 @@ class ReservationViewSet(viewsets.ModelViewSet):
         data = serializer.data
         
         for reservation in data:
-            
             reservation_obj = updated_queryset.get(reservation_id=reservation['reservation_id'])
             reservation['user_name'] = reservation_obj.user.name if reservation_obj.user else None
 

@@ -36,7 +36,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'studentNumber'
     REQUIRED_FIELDS = ['name', 'phone']
 
-# Create your models here.
 class Reservation(models.Model):
     reservation_id = models.AutoField(primary_key=True)
     end_time = models.TimeField()
