@@ -39,18 +39,19 @@ class ReservationViewSet(viewsets.ModelViewSet):
         req_data["start_time"] = start_time_formatted
         req_data["end_time"] = end_time_formatted
 
-        queryset_endtime = Reservation.objects.filter(building=request.data.get('building'), floor=request.data.get('floor'), day=request.data.get('day'), month=request.data.get('month'), year=request.data.get('year'), room=request.data.get('room'), end_time=request.data.get('end_time'))
-        queryset_starttime = Reservation.objects.filter(building=request.data.get('building'), floor=request.data.get('floor'), day=request.data.get('day'), month=request.data.get('month'), year=request.data.get('year'), room=request.data.get('room'), start_time=request.data.get('start_time'))
+        queryset_endtime = Reservation.objects.filter(
+            building=request.data.get('building'), floor=request.data.get('floor'), day=request.data.get('day'), month=request.data.get('month'), year=request.data.get('year'), room=request.data.get('room'), end_time=request.data.get('end_time')
+        )  
+        queryset_starttime = Reservation.objects.filter(
+            building=request.data.get('building'), floor=request.data.get('floor'), day=request.data.get('day'), month=request.data.get('month'), year=request.data.get('year'), room=request.data.get('room'), start_time=request.data.get('start_time')
+        )
 
         if len(queryset_starttime) > 0 or len(queryset_endtime) > 0:
             return Response({'message': '이미 존재하는 예약입니다.'}, status=status.HTTP_400_BAD_REQUEST)
-    
         serializer = self.get_serializer(data=req_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        
         headers = self.get_success_headers(serializer.data)
-        
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     def list(self, request, *args, **kwargs):
@@ -62,20 +63,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
             year=request.query_params.get('year')
         )
 
-        for query in list(queryset):
-            if query.end_time < datetime.now().time() and datetime.now().date() == datetime(query.year, query.month, query.day).date():
-                print(f"Deleting expired reservation: {query}")
-                query.delete()
-
-        updated_queryset = Reservation.objects.filter(
-            building=request.query_params.get('building'),
-            floor=request.query_params.get('floor'),
-            day=request.query_params.get('day'),
-            month=request.query_params.get('month'),
-            year=request.query_params.get('year')
-        )
-
-        page = self.paginate_queryset(updated_queryset)
+        page = self.paginate_queryset(queryset)
         
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -87,7 +75,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
             return self.get_paginated_response(data)
 
-        serializer = self.get_serializer(updated_queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         
         data = serializer.data
         
